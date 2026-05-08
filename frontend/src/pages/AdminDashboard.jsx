@@ -94,6 +94,7 @@ function AdminDashboard() {
                     <thead>
                       <tr style={{ textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                         <th style={{ padding: '0.75rem 0', color: 'var(--text-muted)', fontWeight: 500 }}>Name</th>
+                        <th style={{ padding: '0.75rem 0', color: 'var(--text-muted)', fontWeight: 500 }}>Email</th>
                         <th style={{ padding: '0.75rem 0', color: 'var(--text-muted)', fontWeight: 500 }}>ID / Roll No</th>
                         <th style={{ padding: '0.75rem 0', color: 'var(--text-muted)', fontWeight: 500 }}>Status</th>
                       </tr>
@@ -102,6 +103,7 @@ function AdminDashboard() {
                       {event.attendees.map((attendee, idx) => (
                         <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                           <td style={{ padding: '1rem 0', fontWeight: 600 }}>{attendee.name}</td>
+                          <td style={{ padding: '1rem 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>{attendee.email}</td>
                           <td style={{ padding: '1rem 0', fontFamily: 'monospace' }}>{attendee.id}</td>
                           <td style={{ padding: '1rem 0' }}>
                             {attendee.scanned ? (

@@ -206,6 +206,7 @@ const verifyByCode = async (req, res) => {
 // @desc    Get detailed stats for all events (admin only)
 // @route   GET /api/events/admin/stats
 const getAdminStats = async (req, res) => {
+    console.log('[API] GET /admin/stats requested by:', req.user.email);
     try {
         const events = await Event.find().sort({ date: 1 });
         
@@ -217,9 +218,10 @@ const getAdminStats = async (req, res) => {
             
             users.forEach(user => {
                 user.bookedTickets.forEach(ticket => {
-                    if (ticket.event.toString() === event._id.toString()) {
+                    if (ticket.event && ticket.event.toString() === event._id.toString()) {
                         attendees.push({
                             name: ticket.attendeeName || user.name,
+                            email: user.email,
                             id: ticket.attendeeId || 'N/A',
                             scanned: ticket.scanned,
                             scannedAt: ticket.scannedAt
