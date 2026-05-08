@@ -1,24 +1,23 @@
-# 🎟️ EventMaster — MERN Event Management Platform
-
-A full-stack event management platform built with the **MERN stack** (MongoDB, Express, React, Node.js). Users can browse events, book tickets with QR codes, and scan them for verification. Admins can create, edit, and delete events.
+A full-stack event management platform built with the **MERN stack** (MongoDB, Express, React, Node.js). Users can browse events, book tickets with unique codes, and present them for verification. Admins can create, edit, and delete events.
 
 ---
 
 ## ✨ Features
 
 ### 👤 For Users
-- Browse all upcoming events with category filters
-- Book tickets by entering attendee name & ID
-- View booked tickets with scannable **QR codes** on the Dashboard
-- Real-time seat availability with progress bar
+- **Secure Landing:** Application starts at the **Login** page to ensure authenticated access.
+- **Browse Events:** View all upcoming events with category filters at `/home`.
+- **Book Tickets:** Book tickets by entering attendee name & ID.
+- **Dashboard:** View booked tickets with unique **8-character ticket codes**.
+- **Real-time Availability:** Seat tracking with dynamic progress bars.
 
 ### 👑 For Admins
-- Create new events (title, category, date, location, spots, description)
-- Edit and delete existing events
-- Use the **Verify Ticket** page to scan and validate entry — each ticket can only be used **once**
-  - ✅ **VALID** — first scan, allow entry (ticket marked as used in database)
-  - ⚠️ **ALREADY USED** — scanned before, deny entry
-  - ❌ **INVALID** — ticket not found
+- **Event Management:** Create, edit, and delete events from a premium dashboard.
+- **Manual Verification:** Use the **Verify Ticket** page to enter and validate ticket codes.
+- **One-Time Use:** Each ticket can only be used **once** to prevent reuse.
+  - ✅ **VALID** — first scan, allow entry (ticket marked as used in database).
+  - ⚠️ **ALREADY USED** — previously validated, deny entry.
+  - ❌ **INVALID** — code not found.
 
 ---
 
@@ -30,7 +29,6 @@ A full-stack event management platform built with the **MERN stack** (MongoDB, E
 | Backend    | Node.js, Express.js                 |
 | Database   | MongoDB Atlas (Mongoose ODM)        |
 | Auth       | JWT (JSON Web Tokens) + bcryptjs    |
-| QR Codes   | qrcode.react                        |
 
 ---
 
@@ -42,31 +40,30 @@ mern-event-platform/
 │   ├── config/
 │   │   └── db.js               # MongoDB connection
 │   ├── controllers/
-│   │   ├── authController.js   # Register, Login, Profile
-│   │   └── eventController.js  # CRUD + Book + Verify
+│   │   ├── authController.js   # Register, Login, Profile (Auto-assigns codes)
+│   │   └── eventController.js  # CRUD + Book + Verify by Code
 │   ├── middleware/
 │   │   └── authMiddleware.js   # JWT protect & admin check
 │   ├── models/
-│   │   ├── User.js             # User schema (with bookedTickets)
+│   │   ├── User.js             # User schema (with bookedTickets & scanned status)
 │   │   └── Event.js            # Event schema (spots, totalSpots)
 │   ├── routes/
 │   │   ├── authRoutes.js       # /api/auth/*
 │   │   └── eventRoutes.js      # /api/events/*
-│   ├── server.js               # Express app entry point
-│   └── .env                    # Environment variables (not in git)
+│   └── server.js               # Express app entry point
 │
 └── frontend/
     └── src/
         ├── components/
         │   └── Navbar.jsx      # Navigation bar
         ├── pages/
-        │   ├── Home.jsx        # Event listing + booking modal
-        │   ├── Dashboard.jsx   # User's booked tickets + QR codes
-        │   ├── Login.jsx       # Login form
+        │   ├── Login.jsx       # Landing page (root route '/')
+        │   ├── Home.jsx        # Event listing (/home) + booking modal
+        │   ├── Dashboard.jsx   # User's booked tickets with 8-char codes
         │   ├── Register.jsx    # Registration form
         │   ├── CreateEvent.jsx # Admin: create event form
         │   ├── EditEvent.jsx   # Admin: edit event form
-        │   └── VerifyTicket.jsx# QR scan result page
+        │   └── VerifyTicket.jsx# Manual code verification page
         ├── index.css           # All global styles & design tokens
         └── App.jsx             # Routes configuration
 ```
@@ -113,8 +110,7 @@ npm run dev
 ```
 
 ### 4. Open in browser
-- **PC:** `http://localhost:5173`
-- **Phone (same WiFi):** `http://<your-pc-ip>:5173`
+- **PC:** `http://localhost:5173` (Redirects to Login)
 
 ---
 
@@ -147,21 +143,21 @@ npm run dev
 | PUT    | `/:id`            | Update event          | Admin only    |
 | DELETE | `/:id`            | Delete event          | Admin only    |
 | PUT    | `/:id/book`       | Book a ticket         | Yes           |
-| GET    | `/verify/:ticketId` | Verify QR ticket    | No            |
+| POST   | `/verify-code/:c` | Verify ticket by code | No            |
 
 ---
 
-## 📱 QR Code & Entry Verification
+## 🎫 Ticket Verification System
 
-### How the scan-once system works:
-1. User books a ticket → QR code appears on their **Dashboard**
-2. Admin opens **🔍 Verify** page (in navbar)
-3. User shows their QR code → Admin scans it with phone camera → copies the Ticket ID → pastes into the Verify input
-4. Backend checks the ticket:
-   - **First scan** → marks `scanned: true` + timestamp in database → shows ✅ VALID → allow entry
-   - **Second scan** → ticket already marked used → shows ⚠️ ALREADY USED → deny entry
-   - **Unknown ID** → shows ❌ INVALID
-5. Used tickets on the user's Dashboard show a 🔒 lock overlay with the scan timestamp
+### How the validation works:
+1. **Booking:** User books a ticket → A unique **8-character code** (derived from the ticket ID) appears on their **Dashboard**.
+2. **Presentation:** User shows this code to the admin at the event entry.
+3. **Verification:** Admin opens the **🔍 Verify** page and types in the 8-character code.
+4. **Validation Logic:**
+   - **First entry** → Marks ticket as `scanned: true` → Shows ✅ **VALID** → Allow entry.
+   - **Subsequent entry** → Detects already scanned status → Shows ⚠️ **ALREADY USED** → Deny entry.
+   - **Unknown Code** → Shows ❌ **INVALID**.
+5. **Dashboard Status:** Used tickets on the user's Dashboard show a 🔒 lock overlay and the exact scan timestamp.
 
 > No special app or network IP needed — admin uses the web app on their device.
 
