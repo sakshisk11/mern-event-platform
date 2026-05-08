@@ -24,9 +24,11 @@ const userSchema = mongoose.Schema({
         ref: 'Event'
     }],
     bookedTickets: [{
-        event: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
+        event:        { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
         attendeeName: { type: String },
-        attendeeId: { type: String }
+        attendeeId:   { type: String },
+        scanned:      { type: Boolean, default: false }, // true after first scan at entry
+        scannedAt:    { type: Date, default: null }       // timestamp of when it was scanned
     }]
 }, {
     timestamps: true

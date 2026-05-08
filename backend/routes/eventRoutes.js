@@ -4,7 +4,7 @@ const { getEvents, getEventById, createEvent, updateEvent, deleteEvent, bookEven
 const { protect, admin } = require('../middleware/authMiddleware');
 
 router.get('/', getEvents);
-router.get('/verify/:ticketId', verifyTicket);
+router.post('/verify/:ticketId', verifyTicket);
 router.get('/:id', getEventById);
 router.post('/', protect, admin, createEvent);
 router.put('/:id', protect, admin, updateEvent);

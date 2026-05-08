@@ -31,9 +31,12 @@ function Navbar() {
           <Link to="/dashboard" className={`nav-link ${active('/dashboard')}`}>🎟 My Tickets</Link>
         )}
 
-        {/* Show "Create Event" only for admins */}
+        {/* Show "Create Event" and "Verify Ticket" only for admins */}
         {userInfo?.role === 'admin' && (
-          <Link to="/create-event" className={`nav-link ${active('/create-event')}`}>+ Create Event</Link>
+          <>
+            <Link to="/create-event" className={`nav-link ${active('/create-event')}`}>+ Create Event</Link>
+            <Link to="/verify-ticket" className={`nav-link ${active('/verify-ticket')}`}>🔍 Verify</Link>
+          </>
         )}
 
         {/* Show user info and logout if logged in, else show login button */}
