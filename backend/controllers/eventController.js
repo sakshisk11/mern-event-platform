@@ -206,6 +206,66 @@ const verifyTicket = async (req, res) => {
     }
 };
 
+// @desc    Verify ticket by its 8-char code (first 8 chars of ticket _id, shown on Dashboard)
+// @route   POST /api/events/verify-code/:code
+const verifyByCode = async (req, res) => {
+    try {
+        const code = req.params.code.toUpperCase().trim();
+
+        // Fetch all users and scan for the matching ticket
+        // (linear scan is fine for a small system)
+        const users = await User.find({}).populate('bookedTickets.event');
+
+        let matchedUser   = null;
+        let matchedTicket = null;
+
+        for (const u of users) {
+            for (const t of u.bookedTickets) {
+                if (t._id.toString().substring(0, 8).toUpperCase() === code) {
+                    matchedUser   = u;
+                    matchedTicket = t;
+                    break;
+                }
+            }
+            if (matchedUser) break;
+        }
+
+        if (!matchedUser || !matchedTicket) {
+            return res.status(404).json({ valid: false, message: `No ticket found with code "${code}"` });
+        }
+
+        // Already used?
+        if (matchedTicket.scanned) {
+            return res.status(200).json({
+                valid:        false,
+                alreadyUsed:  true,
+                attendeeName: matchedTicket.attendeeName,
+                attendeeId:   matchedTicket.attendeeId,
+                event:        matchedTicket.event?.title || 'Unknown Event',
+                scannedAt:    matchedTicket.scannedAt,
+            });
+        }
+
+        // First use — mark as scanned
+        matchedTicket.scanned   = true;
+        matchedTicket.scannedAt = new Date();
+        await matchedUser.save();
+
+        return res.status(200).json({
+            valid:        true,
+            alreadyUsed:  false,
+            attendeeName: matchedTicket.attendeeName,
+            attendeeId:   matchedTicket.attendeeId,
+            event:        matchedTicket.event?.title || 'Unknown Event',
+            category:     matchedTicket.event?.category || '',
+            scannedAt:    matchedTicket.scannedAt,
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getEvents,
     getEventById,
@@ -213,5 +273,6 @@ module.exports = {
     updateEvent,
     deleteEvent,
     bookEvent,
-    verifyTicket
+    verifyTicket,
+    verifyByCode,
 };

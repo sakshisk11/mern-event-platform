@@ -93,13 +93,14 @@ function VerifyTicket() {
     } finally { setLoading(false); }
   };
 
-  // ── Form submit: auto-detect code vs raw ID ───────────────────────
+  // ── Form submit: route to correct verify endpoint ────────────────
   const handleSubmit = (e) => {
     e.preventDefault();
-    const val = ticketId.trim();
+    const val = ticketId.trim().toUpperCase();
     if (!val) return;
-    // 6-char alphanumeric → ticket code; 24-char hex → MongoDB _id
-    if (/^[A-Z0-9]{6}$/i.test(val)) verifyByCode(val);
+    // 8-char hex = _id prefix shown on Dashboard → verifyByCode
+    // 24-char hex = full _id from QR scan → verifyById
+    if (/^[A-F0-9]{8}$/i.test(val)) verifyByCode(val);
     else verifyById(val);
   };
 
@@ -130,7 +131,7 @@ function VerifyTicket() {
           <div className="card" style={{ marginBottom: '1rem' }}>
             <div className="card-body">
               <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>
-                Ticket Code (e.g. <span style={{ fontFamily: 'monospace', color: '#a5b4fc' }}>AX7K2P</span>)
+                Ticket Code (e.g. <span style={{ fontFamily: 'monospace', color: '#a5b4fc' }}>69FD4DC4</span>)
               </label>
               <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '0.5rem' }}>
                 <input
@@ -138,8 +139,8 @@ function VerifyTicket() {
                   type="text"
                   value={ticketId}
                   onChange={(e) => setTicketId(e.target.value.toUpperCase())}
-                  placeholder="Type code here..."
-                  maxLength={6}
+                  placeholder="Type 8-char code..."
+                  maxLength={8}
                   autoFocus
                   style={{ flex: 1, fontFamily: 'monospace', fontSize: '1.3rem', letterSpacing: '0.2em' }}
                 />

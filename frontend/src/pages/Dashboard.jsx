@@ -108,7 +108,8 @@ function Dashboard() {
                     letterSpacing: '0.3em',
                     color: ticket.scanned ? '#6b7280' : '#a5b4fc'
                   }}>
-                    {ticket.ticketCode || '------'}
+                    {/* Derive code from ticket _id — always unique, always available */}
+                    {ticket._id.substring(0, 8).toUpperCase()}
                   </div>
                   <div style={{ fontSize: '0.7rem', color: ticket.scanned ? '#f87171' : 'var(--text-muted)', marginTop: '0.2rem' }}>
                     {ticket.scanned ? '🔒 Already used' : 'Show this code to admin at entry'}
