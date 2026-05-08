@@ -212,7 +212,6 @@ const verifyByCode = async (req, res) => {
     try {
         const code = req.params.code.toUpperCase().trim();
 
-        // Fetch all users and find the matching ticket by _id prefix or ticketCode field
         const users = await User.find({}).populate('bookedTickets.event');
 
         let matchedUser   = null;
