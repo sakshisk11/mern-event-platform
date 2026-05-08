@@ -83,29 +83,32 @@ const makeCode = () => {
 
 const getUserProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id)
-            .select('-password')
-            .populate('bookedEvents')
-            .populate('bookedTickets.event');
+        // Step 1: Load raw user (NO populate) to safely modify and save
+        const userRaw = await User.findById(req.user.id);
+        if (!userRaw) return res.status(404).json({ message: 'User not found' });
 
-        if (!user) return res.status(404).json({ message: 'User not found' });
-
-        // ── Auto-fix legacy tickets that have no ticketCode ──────────
-        // This runs silently on every profile load — no re-booking needed.
+        // Step 2: Auto-generate ticketCode for any legacy ticket that's missing one
         let needsSave = false;
-        user.bookedTickets.forEach(ticket => {
+        userRaw.bookedTickets.forEach(ticket => {
             if (!ticket.ticketCode) {
                 ticket.ticketCode = makeCode();
                 needsSave = true;
             }
         });
-        if (needsSave) await user.save();
+        if (needsSave) await userRaw.save(); // safe — no populated objects in the doc
+
+        // Step 3: Re-fetch with full populate for the response
+        const user = await User.findById(req.user.id)
+            .select('-password')
+            .populate('bookedEvents')
+            .populate('bookedTickets.event');
 
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 
 module.exports = {
