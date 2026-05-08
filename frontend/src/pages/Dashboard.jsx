@@ -5,9 +5,6 @@ import { QRCodeSVG } from 'qrcode.react';
 
 const API = `http://${window.location.hostname}:5000/api`;
 
-// ── Check if the app is being accessed via localhost ─────────────────
-// If true, the QR code will contain localhost which won't work on phones.
-const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
 function Dashboard() {
   const [tickets, setTickets] = useState([]);
@@ -45,41 +42,6 @@ function Dashboard() {
       <p className="text-muted" style={{ marginBottom: '1rem' }}>
         Welcome, {userInfo?.name}! Show your QR code at the event entry.
       </p>
-
-      {/* ── Warning banner: shown when on localhost ─────────────────────
-          QR codes won't work on phones if the app is opened via localhost.
-          The user must use the PC's IP address instead. */}
-      {isLocalhost && (
-        <div style={{
-          background: 'rgba(245,158,11,0.1)',
-          border: '1px solid rgba(245,158,11,0.4)',
-          borderRadius: '10px',
-          padding: '1rem 1.2rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          gap: '0.8rem',
-          alignItems: 'flex-start'
-        }}>
-          <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-          <div>
-            <strong style={{ color: '#fbbf24', display: 'block', marginBottom: '0.3rem' }}>
-              QR codes won't scan from phones
-            </strong>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-              You're on <code style={{ color: '#fbbf24' }}>localhost</code>.
-              To generate scannable QR codes, open this page using your PC's network IP address instead:&nbsp;
-              <br />
-              <code style={{ color: '#34d399', fontSize: '0.9rem' }}>
-                {window.location.href.replace('localhost', 'your-pc-ip')}
-              </code>
-              <br />
-              <span style={{ fontSize: '0.8rem' }}>
-                (Run <code style={{ color: '#fbbf24' }}>ipconfig</code> in your terminal to find your IP)
-              </span>
-            </span>
-          </div>
-        </div>
-      )}
 
       {tickets.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
