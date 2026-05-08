@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { QRCodeSVG } from 'qrcode.react';
+
 
 const API = `http://${window.location.hostname}:5000/api`;
 
@@ -40,7 +40,7 @@ function Dashboard() {
     <div className="page">
       <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.3rem' }}>My Tickets</h1>
       <p className="text-muted" style={{ marginBottom: '1rem' }}>
-        Welcome, {userInfo?.name}! Show your QR code at the event entry.
+        Welcome, {userInfo?.name}! Show your ticket code at the event entry.
       </p>
 
       {tickets.length === 0 ? (
@@ -55,10 +55,6 @@ function Dashboard() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.2rem' }}>
           {tickets.map((ticket, i) => {
-            // ── QR value: a URL so phones show "Open link" not "Search barcode" ──
-            // The URL contains the ticket ID as a query param.
-            // Works when phone and PC are on the same WiFi network.
-            const qrUrl = `${window.location.protocol}//${window.location.host}/verify-ticket?ref=${ticket._id}`;
 
             return (
               <div key={`${ticket._id}-${i}`} className="ticket-card"
@@ -116,26 +112,6 @@ function Dashboard() {
                   </div>
                 </div>
 
-                {/* QR Code — encodes a URL so phone camera shows "Open" not "Search barcode" */}
-                <div className="ticket-qr" style={{ position: 'relative' }}>
-                  <QRCodeSVG
-                    value={qrUrl}
-                    size={160}
-                    bgColor="#ffffff"
-                    fgColor="#0f172a"
-                    level="M"
-                  />
-                  {ticket.scanned && (
-                    <div style={{
-                      position: 'absolute', inset: 0,
-                      background: 'rgba(0,0,0,0.55)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      borderRadius: '8px'
-                    }}>
-                      <span style={{ fontSize: '2.5rem' }}>🔒</span>
-                    </div>
-                  )}
-                </div>
 
                 <p style={{ fontFamily: 'monospace', fontSize: '0.72rem', color: 'var(--text-muted)', letterSpacing: '1px' }}>
                   REF: {ticket._id.substring(0, 8).toUpperCase()}

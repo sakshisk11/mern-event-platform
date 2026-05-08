@@ -142,55 +142,6 @@ const bookEvent = async (req, res) => {
     }
 };
 
-// @desc    Verify a ticket by its ID — marks it as used on first scan
-// @route   POST /api/events/verify/:ticketId
-const verifyTicket = async (req, res) => {
-    try {
-        const { ticketId } = req.params;
-
-        // Find the user who owns this ticket
-        const user = await User.findOne({ 'bookedTickets._id': ticketId }).populate('bookedTickets.event');
-
-        if (!user) {
-            return res.status(404).json({ valid: false, message: 'Ticket not found' });
-        }
-
-        const ticket = user.bookedTickets.id(ticketId);
-
-        // ── Check if ticket was already scanned ──────────────────────
-        if (ticket.scanned) {
-            return res.status(200).json({
-                valid: false,
-                alreadyUsed: true,
-                message: 'Ticket already scanned!',
-                attendeeName: ticket.attendeeName,
-                attendeeId: ticket.attendeeId,
-                scannedAt: ticket.scannedAt,
-                event: ticket.event?.title || 'Unknown Event',
-            });
-        }
-
-        // ── First scan: mark ticket as used ──────────────────────────
-        ticket.scanned = true;
-        ticket.scannedAt = new Date();
-        await user.save();
-
-        res.status(200).json({
-            valid: true,
-            alreadyUsed: false,
-            attendeeName: ticket.attendeeName,
-            attendeeId: ticket.attendeeId,
-            event: ticket.event?.title || 'Unknown Event',
-            category: ticket.event?.category || '',
-            date: ticket.event?.date || '',
-            location: ticket.event?.location || '',
-            scannedAt: ticket.scannedAt,
-        });
-
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
 // @desc    Verify ticket by its code (8-char _id prefix shown on Dashboard, or ticketCode field)
 // @route   POST /api/events/verify-code/:code
@@ -259,6 +210,5 @@ module.exports = {
     updateEvent,
     deleteEvent,
     bookEvent,
-    verifyTicket,
     verifyByCode,
 };

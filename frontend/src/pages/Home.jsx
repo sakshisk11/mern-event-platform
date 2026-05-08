@@ -96,7 +96,7 @@ function BookingModal({ event, userInfo, onClose, onConfirm }) {
           </div>
 
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-            ℹ️ A QR code ticket will appear on your Dashboard.
+            ℹ️ A unique ticket code will appear on your Dashboard.
           </p>
 
           <div style={{ display: 'flex', gap: '0.75rem' }}>

@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { Html5Qrcode } from 'html5-qrcode';
-import { useLocation } from 'react-router-dom';
 
 const API = `http://${window.location.hostname}:5000/api`;
 
@@ -10,74 +8,6 @@ function VerifyTicket() {
   const [result, setResult]       = useState(null);
   const [loading, setLoading]     = useState(false);
   const [status, setStatus]       = useState('idle'); // 'idle' | 'valid' | 'used' | 'invalid'
-  const [scanning, setScanning]   = useState(false);
-  const [scanError, setScanError] = useState('');
-
-  const scannerRef = useRef(null);
-  const location   = useLocation();
-
-  // ── Clean up camera on unmount ────────────────────────────────────
-  useEffect(() => {
-    return () => { if (scannerRef.current) scannerRef.current.stop().catch(() => {}); };
-  }, []);
-
-  // ── Auto-verify if page opened via QR URL (?ref=ID) ──────────────
-  useEffect(() => {
-    const ref = new URLSearchParams(location.search).get('ref');
-    if (ref) { setTicketId(ref); verifyById(ref); }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // ── Extract ticket _id from a scanned URL or raw hex ─────────────
-  const extractRef = (text) => {
-    const urlMatch = text.match(/[?&]ref=([a-f0-9]{24})/i);
-    if (urlMatch) return urlMatch[1];
-    if (/^[a-f0-9]{24}$/i.test(text.trim())) return text.trim();
-    return null;
-  };
-
-  // ── Start camera scanner ──────────────────────────────────────────
-  const startScanner = async () => {
-    setScanError(''); setScanning(true); setStatus('idle'); setResult(null); setTicketId('');
-    await new Promise(r => setTimeout(r, 200));
-    const scanner = new Html5Qrcode('qr-reader');
-    scannerRef.current = scanner;
-    try {
-      await scanner.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        async (decodedText) => {
-          await scanner.stop(); setScanning(false);
-          const ref = extractRef(decodedText);
-          if (ref) { setTicketId(ref); await verifyById(ref); }
-          else setScanError('QR not recognized. Try entering the code below.');
-        },
-        () => {}
-      );
-    } catch {
-      setScanning(false);
-      setScanError('Camera access denied. Allow camera permission or enter the code manually.');
-    }
-  };
-
-  const stopScanner = async () => {
-    if (scannerRef.current) await scannerRef.current.stop().catch(() => {});
-    setScanning(false);
-  };
-
-  // ── Verify by MongoDB _id (QR scan) ──────────────────────────────
-  const verifyById = async (id) => {
-    if (!id?.trim()) return;
-    setLoading(true); setResult(null); setStatus('idle');
-    try {
-      const { data } = await axios.post(`${API}/events/verify/${id.trim()}`);
-      setResult(data);
-      setStatus(data.alreadyUsed ? 'used' : data.valid ? 'valid' : 'invalid');
-    } catch (err) {
-      setStatus('invalid');
-      setResult({ message: err.response?.data?.message || 'Ticket not found' });
-    } finally { setLoading(false); }
-  };
 
   // ── Verify by short ticket code (e.g. "AX7K2P") ──────────────────
   const verifyByCode = async (code) => {
@@ -93,19 +23,14 @@ function VerifyTicket() {
     } finally { setLoading(false); }
   };
 
-  // ── Form submit ──────────────────────────────────────────────────
-  // 24-char hex = full MongoDB _id (from QR scan) → verifyById
-  // Anything else (8-char _id prefix shown on dashboard) → verifyByCode
   const handleSubmit = (e) => {
     e.preventDefault();
     const val = ticketId.trim().toUpperCase();
     if (!val) return;
-    if (/^[a-f0-9]{24}$/i.test(val)) verifyById(val);
-    else verifyByCode(val);
+    verifyByCode(val);
   };
 
-
-  const handleReset = () => { setTicketId(''); setResult(null); setStatus('idle'); setScanError(''); };
+  const handleReset = () => { setTicketId(''); setResult(null); setStatus('idle'); };
 
   const statusConfig = {
     valid:   { color: '#22c55e', icon: '✅', label: 'VALID — ALLOW ENTRY' },
@@ -123,12 +48,12 @@ function VerifyTicket() {
           🎫 Ticket Verification
         </h1>
         <p className="text-muted" style={{ marginBottom: '2rem' }}>
-          Enter the attendee's <strong style={{ color: '#a5b4fc' }}>6-letter ticket code</strong> shown
+          Enter the attendee's <strong style={{ color: '#a5b4fc' }}>unique ticket code</strong> shown
           on their Dashboard. Each ticket can only be used once.
         </p>
 
         {/* ── PRIMARY: Ticket Code Entry ─────────────────────────── */}
-        {!scanning && status === 'idle' && (
+        {status === 'idle' && (
           <div className="card" style={{ marginBottom: '1rem' }}>
             <div className="card-body">
               <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>
@@ -140,8 +65,8 @@ function VerifyTicket() {
                   type="text"
                   value={ticketId}
                   onChange={(e) => setTicketId(e.target.value.toUpperCase())}
-                  placeholder="Type 8-char code..."
-                  maxLength={8}
+                  placeholder="Type code here..."
+                  maxLength={12}
                   autoFocus
                   style={{ flex: 1, fontFamily: 'monospace', fontSize: '1.3rem', letterSpacing: '0.2em' }}
                 />
@@ -156,47 +81,6 @@ function VerifyTicket() {
               </form>
             </div>
           </div>
-        )}
-
-        {/* ── SECONDARY: QR Camera Scanner ──────────────────────── */}
-        {!scanning && status === 'idle' && (
-          <details style={{ marginBottom: '1rem' }}>
-            <summary style={{ cursor: 'pointer', color: 'var(--text-muted)', fontSize: '0.85rem', padding: '0.4rem 0' }}>
-              📷 Or scan QR code with camera instead
-            </summary>
-            <button
-              className="btn btn-ghost"
-              style={{ width: '100%', justifyContent: 'center', marginTop: '0.6rem' }}
-              onClick={startScanner}
-            >
-              Open Camera Scanner
-            </button>
-          </details>
-        )}
-
-        {/* ── Camera Viewfinder ──────────────────────────────────── */}
-        {scanning && (
-          <div style={{ marginBottom: '1rem' }}>
-            <p className="text-muted" style={{ textAlign: 'center', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-              Point camera at the attendee's QR code...
-            </p>
-            <div
-              id="qr-reader"
-              style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--primary)' }}
-            />
-            <button
-              className="btn btn-ghost"
-              style={{ width: '100%', marginTop: '0.75rem', justifyContent: 'center' }}
-              onClick={stopScanner}
-            >
-              Cancel
-            </button>
-          </div>
-        )}
-
-        {/* Camera / scan error */}
-        {scanError && (
-          <div className="alert-error" style={{ marginBottom: '1rem' }}>⚠️ {scanError}</div>
         )}
 
         {/* ── Result Card ────────────────────────────────────────── */}
@@ -220,10 +104,9 @@ function VerifyTicket() {
                 padding: '1.2rem', textAlign: 'left',
                 display: 'flex', flexDirection: 'column', gap: '0.7rem'
               }}>
-                {result.attendeeName && <InfoRow label="Name"  value={result.attendeeName} />}
-                {result.attendeeId   && <InfoRow label="ID"    value={result.attendeeId} />}
-                {result.ticketCode   && <InfoRow label="Code"  value={result.ticketCode} />}
-                {result.event        && <InfoRow label="Event" value={result.event} />}
+                {result.attendeeName && <InfoRow label="Attendee Name" value={result.attendeeName} />}
+                {result.attendeeId   && <InfoRow label="Attendee ID"   value={result.attendeeId} />}
+                {result.event        && <InfoRow label="Event Title"   value={result.event} />}
                 {status === 'used' && result.scannedAt && (
                   <InfoRow label="⚠️ Previously scanned at" value={new Date(result.scannedAt).toLocaleString()} highlight />
                 )}
