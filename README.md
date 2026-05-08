@@ -15,7 +15,10 @@ A full-stack event management platform built with the **MERN stack** (MongoDB, E
 ### 👑 For Admins
 - Create new events (title, category, date, location, spots, description)
 - Edit and delete existing events
-- Scan QR codes with any phone camera to instantly see attendee Name & ID
+- Use the **Verify Ticket** page to scan and validate entry — each ticket can only be used **once**
+  - ✅ **VALID** — first scan, allow entry (ticket marked as used in database)
+  - ⚠️ **ALREADY USED** — scanned before, deny entry
+  - ❌ **INVALID** — ticket not found
 
 ---
 
@@ -148,19 +151,19 @@ npm run dev
 
 ---
 
-## 📱 QR Code Scanning
+## 📱 QR Code & Entry Verification
 
-Each ticket on the Dashboard has a QR code that encodes the attendee's **Name and ID as plain text**.
+### How the scan-once system works:
+1. User books a ticket → QR code appears on their **Dashboard**
+2. Admin opens **🔍 Verify** page (in navbar)
+3. User shows their QR code → Admin scans it with phone camera → copies the Ticket ID → pastes into the Verify input
+4. Backend checks the ticket:
+   - **First scan** → marks `scanned: true` + timestamp in database → shows ✅ VALID → allow entry
+   - **Second scan** → ticket already marked used → shows ⚠️ ALREADY USED → deny entry
+   - **Unknown ID** → shows ❌ INVALID
+5. Used tickets on the user's Dashboard show a 🔒 lock overlay with the scan timestamp
 
-- **No internet needed** — any phone camera can scan it directly
-- **No IP address required** — works anywhere, any network
-- Scanning shows a popup like:
-  ```
-  Name: Sakshi
-  ID: 1234
-  ```
-
-Simply open your phone camera, point at the QR code, and the info appears instantly.
+> No special app or network IP needed — admin uses the web app on their device.
 
 ---
 
