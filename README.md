@@ -18,7 +18,7 @@ A full-stack event management platform built with the **MERN stack** (MongoDB, E
   - ✅ **VALID** — first scan, allow entry (ticket marked as used in database).
   - ⚠️ **ALREADY USED** — previously validated, deny entry.
   - ❌ **INVALID** — code not found.
-- **Admin Stats Dashboard:** A dedicated page (`/admin/dashboard`) to view booked/remaining spots and full attendee lists for every event.
+- **Admin Stats Dashboard:** A dedicated page (`/admin/dashboard`) to view booked/remaining spots and full attendee lists (including Name, Email, and ID) for every event.
 
 ---
 
