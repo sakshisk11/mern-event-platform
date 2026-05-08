@@ -49,7 +49,7 @@ function EditEvent() {
         { ...form, spots: Number(form.spots) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update event');
     }
