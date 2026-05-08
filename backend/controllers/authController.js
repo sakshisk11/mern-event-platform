@@ -83,21 +83,25 @@ const makeCode = () => {
 
 const getUserProfile = async (req, res) => {
     try {
-        // Step 1: Load raw user (NO populate) to safely modify and save
-        const userRaw = await User.findById(req.user.id);
+        // Step 1: Load as a plain JS object (lean) to inspect ticket codes
+        const userRaw = await User.findById(req.user.id).lean();
         if (!userRaw) return res.status(404).json({ message: 'User not found' });
 
-        // Step 2: Auto-generate ticketCode for any legacy ticket that's missing one
-        let needsSave = false;
-        userRaw.bookedTickets.forEach(ticket => {
+        // Step 2: Build $set map for every ticket that is missing a code
+        // Using positional indices is the most reliable way to update subdocuments
+        const setOps = {};
+        userRaw.bookedTickets.forEach((ticket, idx) => {
             if (!ticket.ticketCode) {
-                ticket.ticketCode = makeCode();
-                needsSave = true;
+                setOps[`bookedTickets.${idx}.ticketCode`] = makeCode();
             }
         });
-        if (needsSave) await userRaw.save(); // safe — no populated objects in the doc
 
-        // Step 3: Re-fetch with full populate for the response
+        // Only hit the DB if there is actually something to update
+        if (Object.keys(setOps).length > 0) {
+            await User.updateOne({ _id: req.user.id }, { $set: setOps });
+        }
+
+        // Step 3: Return the up-to-date user with all relations populated
         const user = await User.findById(req.user.id)
             .select('-password')
             .populate('bookedEvents')
@@ -108,6 +112,7 @@ const getUserProfile = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 
 
