@@ -86,9 +86,8 @@ const loginUser = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
     try {
-        // Use raw MongoDB driver — same as the migration script (guaranteed to work)
         const col = mongoose.connection.db.collection('users');
-        const userId = new mongoose.Types.ObjectId(req.user.id);
+        const userId = new mongoose.Types.ObjectId(req.user.id.toString());
 
         // Load plain doc to find tickets missing a code
         const userRaw = await col.findOne({ _id: userId });
