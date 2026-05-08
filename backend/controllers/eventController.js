@@ -1,6 +1,14 @@
 const User = require('../models/User');
 const Event = require('../models/Event');
 
+// Generate a unique 6-char alphanumeric ticket code (no 0,O,1,I to avoid confusion)
+const generateTicketCode = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+};
+
 // @desc    Get all events
 // @route   GET /api/events
 const getEvents = async (req, res) => {
@@ -118,7 +126,8 @@ const bookEvent = async (req, res) => {
         user.bookedTickets.push({
             event: event._id,
             attendeeName: attendeeName || user.name,
-            attendeeId: attendeeId || 'N/A'
+            attendeeId:   attendeeId || 'N/A',
+            ticketCode:   generateTicketCode()   // unique 6-char code e.g. "AX7K2P"
         });
 
         await user.save();
