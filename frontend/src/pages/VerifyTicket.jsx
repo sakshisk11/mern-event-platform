@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Html5Qrcode } from 'html5-qrcode';
+import { useLocation } from 'react-router-dom';
 
 const API = `http://${window.location.hostname}:5000/api`;
 
@@ -13,21 +14,26 @@ function VerifyTicket() {
   const [scanError, setScanError] = useState('');
 
   const scannerRef = useRef(null);
+  const location = useLocation();
 
-  // ── Clean up camera when admin leaves the page ────────────────────
+  // ── Auto-verify if the page was opened via QR link (?ref=ID) ─────
   useEffect(() => {
-    return () => {
-      if (scannerRef.current) scannerRef.current.stop().catch(() => {});
-    };
+    const params = new URLSearchParams(location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      setTicketId(ref);
+      verifyById(ref);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Extract ticket _id from whatever the QR contains ─────────────
   // Handles:
-  //   - Plain text format:  "TICKET\nName: ...\nID: ...\nRef:  <24hex>"
-  //   - Raw 24-char hex ID: "68157a2bc3d4e5f6a7b8c9d0"
+  //   1. URL format:  http://host/verify-ticket?ref=<24hex>
+  //   2. Raw 24-char hex ID
   const extractRef = (text) => {
-    const refMatch = text.match(/Ref:\s*([a-f0-9]{24})/i);
-    if (refMatch) return refMatch[1];
+    const urlMatch = text.match(/[?&]ref=([a-f0-9]{24})/i);
+    if (urlMatch) return urlMatch[1];
     if (/^[a-f0-9]{24}$/i.test(text.trim())) return text.trim();
     return null;
   };
