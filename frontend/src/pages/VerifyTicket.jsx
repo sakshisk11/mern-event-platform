@@ -83,7 +83,7 @@ function VerifyTicket() {
                   autoFocus
                 />
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
-                  💡 Scan the QR code with your camera → copy the ID → paste it here
+                  💡 Scan QR with camera → phone shows ticket info → copy the <strong>Ref:</strong> value → paste here
                 </p>
               </div>
 

@@ -102,12 +102,19 @@ function Dashboard() {
                 )}
               </div>
 
-              {/* QR Code — encodes the ticket _id as plain text.
-                  Admin scans it → reads the ticket ID → enters into Verify Ticket page to mark it as used. */}
+              {/* QR Code — encodes human-readable ticket info.
+                  When scanned, phone shows the text directly.
+                  Admin copies the Ticket Ref (last line) into the Verify page. */}
               <div className="ticket-qr" style={{ position: 'relative' }}>
                 <QRCodeSVG
-                  value={ticket._id}
-                  size={140}
+                  value={
+                    `EventMaster Ticket\n` +
+                    `Name: ${ticket.attendeeName}\n` +
+                    `ID: ${ticket.attendeeId || 'N/A'}\n` +
+                    `Event: ${ticket.event?.title || 'Unknown'}\n` +
+                    `Ref: ${ticket._id}`
+                  }
+                  size={160}
                   bgColor="#ffffff"
                   fgColor="#0f172a"
                   level="Q"
