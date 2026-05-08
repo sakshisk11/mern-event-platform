@@ -121,16 +121,23 @@ const bookEvent = async (req, res) => {
         event.spots -= 1;
         await event.save();
 
-        // Add ticket to user
-        user.bookedEvents.push(event._id);
-        user.bookedTickets.push({
-            event: event._id,
-            attendeeName: attendeeName || user.name,
-            attendeeId:   attendeeId || 'N/A',
-            ticketCode:   generateTicketCode()   // unique 6-char code e.g. "AX7K2P"
-        });
+        const ticketCode = generateTicketCode();
 
-        await user.save();
+        // Use $push directly — bypasses Mongoose save() which was silently
+        // dropping the ticketCode field on subdocument creation
+        await User.findByIdAndUpdate(req.user.id, {
+            $push: {
+                bookedEvents: event._id,
+                bookedTickets: {
+                    event:        event._id,
+                    attendeeName: attendeeName || user.name,
+                    attendeeId:   attendeeId   || 'N/A',
+                    ticketCode,
+                    scanned:  false,
+                    scannedAt: null
+                }
+            }
+        });
 
         res.status(200).json({
             message: 'Ticket booked successfully!',
