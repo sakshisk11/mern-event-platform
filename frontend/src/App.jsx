@@ -6,6 +6,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 
+import CreateEvent from './pages/CreateEvent';
+import EditEvent from './pages/EditEvent';
+import VerifyTicket from './pages/VerifyTicket';
+
 function App() {
   return (
     <BrowserRouter>
@@ -20,6 +24,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/create-event" element={<CreateEvent />} />
+          <Route path="/edit-event/:id" element={<EditEvent />} />
+          <Route path="/verify-ticket/:ticketId" element={<VerifyTicket />} />
         </Routes>
 
       </div>

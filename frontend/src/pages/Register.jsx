@@ -1,67 +1,107 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+const API = `http://${window.location.hostname}:5000/api`;
 
 function Register() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName]         = useState('');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Registration attempt:', name, email, password);
+    setError('');
+
+    // Basic validation
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // POST to backend register route
+      const { data } = await axios.post(`${API}/auth/register`, { name, email, password });
+
+      // Save login info to localStorage
+      localStorage.setItem('userToken', data.token);
+      localStorage.setItem('userInfo', JSON.stringify(data));
+
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '75vh'}}>
-      <div className="glass" style={{padding: '3rem', width: '100%', maxWidth: '420px', borderRadius: 'var(--radius-lg)'}}>
-        
-        <h2 style={{textAlign: 'center', marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '2rem'}}>Create Account</h2>
-        <p style={{textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '2rem'}}>Join your campus event network</p>
-        
-        <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-            <label style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>Full Name</label>
-            <input 
-              type="text" 
+    <div className="auth-page">
+      <div className="auth-box">
+        {/* Header */}
+        <h1 className="auth-title">Create Account</h1>
+        <p className="auth-subtitle">Join EventMaster — it's free!</p>
+
+        {/* Error message */}
+        {error && <div className="alert-error" style={{ marginBottom: '1rem' }}>⚠️ {error}</div>}
+
+        {/* Registration form */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="form-group">
+            <label className="form-label">Full Name</label>
+            <input
+              className="form-input"
+              type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="John Doe"
+              placeholder="Sakshi"
               required
-              style={{padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.3)', color: 'white', outline: 'none'}}
             />
           </div>
 
-          <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-            <label style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>College Email</label>
-            <input 
-              type="email" 
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input
+              className="form-input"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="student@university.edu"
+              placeholder="you@example.com"
               required
-              style={{padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.3)', color: 'white', outline: 'none'}}
             />
           </div>
-          
-          <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-            <label style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>Password</label>
-            <input 
-              type="password" 
+
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input
+              className="form-input"
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Min. 6 characters"
               required
-              style={{padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.3)', color: 'white', outline: 'none'}}
             />
           </div>
-          
-          <button type="submit" style={{padding: '1rem', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: 'var(--radius-md)', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem'}}>
-            Sign Up
+
+          <button type="submit" className="btn btn-primary" disabled={loading}
+            style={{ width: '100%', justifyContent: 'center', padding: '0.8rem', marginTop: '0.5rem' }}>
+            {loading ? 'Creating account...' : 'Create Account →'}
           </button>
         </form>
-        
-        <p style={{textAlign: 'center', marginTop: '2rem', color: 'var(--text-secondary)', fontSize: '0.9rem'}}>
-          Already have an account? <Link to="/login" style={{color: 'var(--primary-color)', textDecoration: 'none', fontWeight: 600}}>Sign in here</Link>
+
+        {/* Divider */}
+        <div className="divider" />
+
+        {/* Link to login */}
+        <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          Already have an account?{' '}
+          <Link to="/login" style={{ color: '#818cf8', fontWeight: 600, textDecoration: 'none' }}>
+            Sign in
+          </Link>
         </p>
       </div>
     </div>
