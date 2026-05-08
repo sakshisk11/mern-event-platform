@@ -123,21 +123,28 @@ const bookEvent = async (req, res) => {
 
         const ticketCode = generateTicketCode();
 
-        // Use $push directly — bypasses Mongoose save() which was silently
-        // dropping the ticketCode field on subdocument creation
-        await User.findByIdAndUpdate(req.user.id, {
-            $push: {
-                bookedEvents: event._id,
-                bookedTickets: {
-                    event:        event._id,
-                    attendeeName: attendeeName || user.name,
-                    attendeeId:   attendeeId   || 'N/A',
-                    ticketCode,
-                    scanned:  false,
-                    scannedAt: null
+        // Use raw MongoDB driver to push the ticket — Mongoose $push/$save
+        // was silently dropping ticketCode; raw driver is guaranteed to work.
+        const col = require('mongoose').connection.db.collection('users');
+        const userId = new require('mongoose').Types.ObjectId(req.user.id);
+
+        await col.updateOne(
+            { _id: userId },
+            {
+                $push: {
+                    bookedEvents: event._id,
+                    bookedTickets: {
+                        _id:          new (require('mongoose').Types.ObjectId)(),
+                        event:        event._id,
+                        attendeeName: attendeeName || user.name,
+                        attendeeId:   attendeeId   || 'N/A',
+                        ticketCode,
+                        scanned:      false,
+                        scannedAt:    null
+                    }
                 }
             }
-        });
+        );
 
         res.status(200).json({
             message: 'Ticket booked successfully!',

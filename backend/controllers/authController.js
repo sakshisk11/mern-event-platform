@@ -1,6 +1,15 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 const User = require('../models/User');
+
+const makeCode = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+};
+
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -83,29 +92,27 @@ const makeCode = () => {
 
 const getUserProfile = async (req, res) => {
     try {
-        const userRaw = await User.findById(req.user.id).lean();
+        // Use raw MongoDB driver — same as the migration script (guaranteed to work)
+        const col = mongoose.connection.db.collection('users');
+        const userId = new mongoose.Types.ObjectId(req.user.id);
+
+        // Load plain doc to find tickets missing a code
+        const userRaw = await col.findOne({ _id: userId });
         if (!userRaw) return res.status(404).json({ message: 'User not found' });
 
-        console.log('--- getUserProfile debug ---');
-        console.log('Total tickets:', userRaw.bookedTickets.length);
-
+        // Build $set for any ticket that has no ticketCode
         const setOps = {};
-        userRaw.bookedTickets.forEach((ticket, idx) => {
-            console.log(`Ticket ${idx}: ticketCode="${ticket.ticketCode}"`);
+        (userRaw.bookedTickets || []).forEach((ticket, idx) => {
             if (!ticket.ticketCode) {
                 setOps[`bookedTickets.${idx}.ticketCode`] = makeCode();
             }
         });
 
-        console.log('setOps to apply:', setOps);
-
         if (Object.keys(setOps).length > 0) {
-            const updateResult = await User.updateOne({ _id: req.user.id }, { $set: setOps });
-            console.log('updateOne result:', JSON.stringify(updateResult));
-        } else {
-            console.log('No tickets needed updating.');
+            await col.updateOne({ _id: userId }, { $set: setOps });
         }
 
+        // Return populated Mongoose document for the response
         const user = await User.findById(req.user.id)
             .select('-password')
             .populate('bookedEvents')
@@ -113,10 +120,10 @@ const getUserProfile = async (req, res) => {
 
         res.status(200).json(user);
     } catch (error) {
-        console.error('getUserProfile error:', error);
         res.status(500).json({ message: error.message });
     }
 };
+
 
 
 
