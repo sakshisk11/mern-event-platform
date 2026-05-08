@@ -206,14 +206,13 @@ const verifyTicket = async (req, res) => {
     }
 };
 
-// @desc    Verify ticket by its 8-char code (first 8 chars of ticket _id, shown on Dashboard)
+// @desc    Verify ticket by its code (8-char _id prefix shown on Dashboard, or ticketCode field)
 // @route   POST /api/events/verify-code/:code
 const verifyByCode = async (req, res) => {
     try {
         const code = req.params.code.toUpperCase().trim();
 
-        // Fetch all users and scan for the matching ticket
-        // (linear scan is fine for a small system)
+        // Fetch all users and find the matching ticket by _id prefix or ticketCode field
         const users = await User.find({}).populate('bookedTickets.event');
 
         let matchedUser   = null;
@@ -221,7 +220,9 @@ const verifyByCode = async (req, res) => {
 
         for (const u of users) {
             for (const t of u.bookedTickets) {
-                if (t._id.toString().substring(0, 8).toUpperCase() === code) {
+                const idPrefix   = t._id.toString().substring(0, code.length).toUpperCase();
+                const storedCode = (t.ticketCode || '').toUpperCase();
+                if (idPrefix === code || storedCode === code) {
                     matchedUser   = u;
                     matchedTicket = t;
                     break;

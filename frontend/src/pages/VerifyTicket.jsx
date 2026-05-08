@@ -93,16 +93,17 @@ function VerifyTicket() {
     } finally { setLoading(false); }
   };
 
-  // ── Form submit: route to correct verify endpoint ────────────────
+  // ── Form submit ──────────────────────────────────────────────────
+  // 24-char hex = full MongoDB _id (from QR scan) → verifyById
+  // Anything else (8-char _id prefix shown on dashboard) → verifyByCode
   const handleSubmit = (e) => {
     e.preventDefault();
     const val = ticketId.trim().toUpperCase();
     if (!val) return;
-    // 8-char hex = _id prefix shown on Dashboard → verifyByCode
-    // 24-char hex = full _id from QR scan → verifyById
-    if (/^[A-F0-9]{8}$/i.test(val)) verifyByCode(val);
-    else verifyById(val);
+    if (/^[a-f0-9]{24}$/i.test(val)) verifyById(val);
+    else verifyByCode(val);
   };
+
 
   const handleReset = () => { setTicketId(''); setResult(null); setStatus('idle'); setScanError(''); };
 
