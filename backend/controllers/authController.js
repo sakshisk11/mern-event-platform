@@ -73,19 +73,40 @@ const loginUser = async (req, res) => {
     }
 };
 
+// Helper: generate a 6-char alphanumeric ticket code
+const makeCode = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+};
+
 const getUserProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password').populate('bookedEvents').populate('bookedTickets.event');
-        
-        if (user) {
-            res.status(200).json(user);
-        } else {
-            res.status(404).json({ message: 'User not found' });
-        }
+        const user = await User.findById(req.user.id)
+            .select('-password')
+            .populate('bookedEvents')
+            .populate('bookedTickets.event');
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // ── Auto-fix legacy tickets that have no ticketCode ──────────
+        // This runs silently on every profile load — no re-booking needed.
+        let needsSave = false;
+        user.bookedTickets.forEach(ticket => {
+            if (!ticket.ticketCode) {
+                ticket.ticketCode = makeCode();
+                needsSave = true;
+            }
+        });
+        if (needsSave) await user.save();
+
+        res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 module.exports = {
     registerUser,

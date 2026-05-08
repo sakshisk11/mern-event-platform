@@ -88,6 +88,33 @@ function Dashboard() {
                   )}
                 </div>
 
+                {/* ── TICKET CODE — primary verification method ─────────
+                    Admin types this on the Verify page. No QR/IP needed. */}
+                <div style={{
+                  background: 'rgba(99,102,241,0.12)',
+                  border: '1px solid rgba(99,102,241,0.35)',
+                  borderRadius: '10px',
+                  padding: '0.75rem 1rem',
+                  textAlign: 'center',
+                  width: '100%'
+                }}>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.3rem' }}>
+                    Ticket Code
+                  </div>
+                  <div style={{
+                    fontFamily: 'monospace',
+                    fontSize: '2rem',
+                    fontWeight: 900,
+                    letterSpacing: '0.3em',
+                    color: ticket.scanned ? '#6b7280' : '#a5b4fc'
+                  }}>
+                    {ticket.ticketCode || '------'}
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: ticket.scanned ? '#f87171' : 'var(--text-muted)', marginTop: '0.2rem' }}>
+                    {ticket.scanned ? '🔒 Already used' : 'Show this code to admin at entry'}
+                  </div>
+                </div>
+
                 {/* QR Code — encodes a URL so phone camera shows "Open" not "Search barcode" */}
                 <div className="ticket-qr" style={{ position: 'relative' }}>
                   <QRCodeSVG
