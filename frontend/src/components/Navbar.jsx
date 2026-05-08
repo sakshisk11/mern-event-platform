@@ -20,11 +20,11 @@ function Navbar() {
   return (
     <nav className="navbar">
       {/* Logo */}
-      <Link to="/" className="navbar-brand">⚡ EventMaster</Link>
+      <Link to={userInfo ? "/home" : "/"} className="navbar-brand">⚡ EventMaster</Link>
 
       {/* Navigation Links */}
       <div className="navbar-links">
-        <Link to="/" className={`nav-link ${active('/')}`}>Events</Link>
+        <Link to={userInfo ? "/home" : "/"} className={`nav-link ${active('/home') || active('/')}`}>Events</Link>
 
         {/* Show "My Tickets" only for regular users */}
         {userInfo && userInfo.role !== 'admin' && (

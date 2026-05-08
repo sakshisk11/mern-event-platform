@@ -31,7 +31,7 @@ function Register() {
       localStorage.setItem('userToken', data.token);
       localStorage.setItem('userInfo', JSON.stringify(data));
 
-      navigate('/dashboard');
+      navigate('/home');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {

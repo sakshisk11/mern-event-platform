@@ -23,8 +23,8 @@ function Login() {
       localStorage.setItem('userToken', data.token);
       localStorage.setItem('userInfo', JSON.stringify(data));
 
-      // Redirect: admin goes to home, regular user goes to dashboard
-      navigate(data.role === 'admin' ? '/' : '/dashboard');
+      // Redirect: everyone goes to home events list by default
+      navigate('/home');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
