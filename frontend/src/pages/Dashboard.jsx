@@ -90,10 +90,10 @@ function Dashboard() {
                 )}
               </div>
 
-              {/* QR Code — encodes the verify URL with the ticket's ID */}
+              {/* QR Code — encodes Name & ID as plain text so any phone camera can read it directly */}
               <div className="ticket-qr">
                 <QRCodeSVG
-                  value={`${window.location.protocol}//${window.location.host}/verify-ticket/${ticket._id}`}
+                  value={`Name: ${ticket.attendeeName}\nID: ${ticket.attendeeId || 'N/A'}`}
                   size={140}
                   bgColor="#ffffff"
                   fgColor="#0f172a"
