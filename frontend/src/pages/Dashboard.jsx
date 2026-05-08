@@ -66,7 +66,7 @@ function Dashboard() {
               QR codes won't scan from phones
             </strong>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-              You're on <code style={{ color: '#fbbf24' }}>localhost</code>. 
+              You're on <code style={{ color: '#fbbf24' }}>localhost</code>.
               To generate scannable QR codes, open this page using your PC's network IP address instead:&nbsp;
               <br />
               <code style={{ color: '#34d399', fontSize: '0.9rem' }}>

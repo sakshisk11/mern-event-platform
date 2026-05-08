@@ -123,10 +123,10 @@ const bookEvent = async (req, res) => {
 
         await user.save();
 
-        res.status(200).json({ 
-            message: 'Ticket booked successfully!', 
+        res.status(200).json({
+            message: 'Ticket booked successfully!',
             event,
-            spotsRemaining: event.spots 
+            spotsRemaining: event.spots
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -162,7 +162,7 @@ const verifyTicket = async (req, res) => {
         }
 
         // ── First scan: mark ticket as used ──────────────────────────
-        ticket.scanned   = true;
+        ticket.scanned = true;
         ticket.scannedAt = new Date();
         await user.save();
 
@@ -170,12 +170,12 @@ const verifyTicket = async (req, res) => {
             valid: true,
             alreadyUsed: false,
             attendeeName: ticket.attendeeName,
-            attendeeId:   ticket.attendeeId,
-            event:        ticket.event?.title || 'Unknown Event',
-            category:     ticket.event?.category || '',
-            date:         ticket.event?.date || '',
-            location:     ticket.event?.location || '',
-            scannedAt:    ticket.scannedAt,
+            attendeeId: ticket.attendeeId,
+            event: ticket.event?.title || 'Unknown Event',
+            category: ticket.event?.category || '',
+            date: ticket.event?.date || '',
+            location: ticket.event?.location || '',
+            scannedAt: ticket.scannedAt,
         });
 
     } catch (error) {

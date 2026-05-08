@@ -6,11 +6,11 @@ import { useLocation } from 'react-router-dom';
 const API = `http://${window.location.hostname}:5000/api`;
 
 function VerifyTicket() {
-  const [ticketId, setTicketId]   = useState('');
-  const [result, setResult]       = useState(null);
-  const [loading, setLoading]     = useState(false);
-  const [status, setStatus]       = useState('idle'); // 'idle' | 'valid' | 'used' | 'invalid'
-  const [scanning, setScanning]   = useState(false);
+  const [ticketId, setTicketId] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('idle'); // 'idle' | 'valid' | 'used' | 'invalid'
+  const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState('');
 
   const scannerRef = useRef(null);
@@ -24,7 +24,7 @@ function VerifyTicket() {
       setTicketId(ref);
       verifyById(ref);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Extract ticket _id from whatever the QR contains ─────────────
@@ -67,7 +67,7 @@ function VerifyTicket() {
             setScanError('QR not recognized. Try manual entry below.');
           }
         },
-        () => {} // ignore per-frame errors
+        () => { } // ignore per-frame errors
       );
     } catch {
       setScanning(false);
@@ -76,7 +76,7 @@ function VerifyTicket() {
   };
 
   const stopScanner = async () => {
-    if (scannerRef.current) await scannerRef.current.stop().catch(() => {});
+    if (scannerRef.current) await scannerRef.current.stop().catch(() => { });
     setScanning(false);
   };
 
@@ -114,8 +114,8 @@ function VerifyTicket() {
   };
 
   const statusConfig = {
-    valid:   { color: '#22c55e', icon: '✅', label: 'VALID — ALLOW ENTRY' },
-    used:    { color: '#f59e0b', icon: '⚠️', label: 'ALREADY USED — DENY ENTRY' },
+    valid: { color: '#22c55e', icon: '✅', label: 'VALID — ALLOW ENTRY' },
+    used: { color: '#f59e0b', icon: '⚠️', label: 'ALREADY USED — DENY ENTRY' },
     invalid: { color: '#ef4444', icon: '❌', label: 'INVALID TICKET' },
   };
   const cfg = statusConfig[status];
@@ -172,22 +172,6 @@ function VerifyTicket() {
             <div className="card" style={{ marginTop: '0.75rem' }}>
               <div className="card-body">
                 <form onSubmit={handleManualSubmit} style={{ display: 'flex', gap: '0.5rem' }}>
-                  <input
-                    className="form-input"
-                    type="text"
-                    value={ticketId}
-                    onChange={(e) => setTicketId(e.target.value)}
-                    placeholder="Paste the Ref value here..."
-                    style={{ flex: 1 }}
-                  />
-                  <button type="submit" className="btn btn-primary" disabled={loading || !ticketId.trim()}>
-                    {loading ? '...' : 'Verify'}
-                  </button>
-                </form>
-              </div>
-            </div>
-          </details>
-        )}
 
         {/* ── Result ──────────────────────────────────────────────── */}
         {status !== 'idle' && cfg && (
@@ -211,10 +195,10 @@ function VerifyTicket() {
                 padding: '1.2rem', textAlign: 'left',
                 display: 'flex', flexDirection: 'column', gap: '0.7rem'
               }}>
-                {result.attendeeName && <InfoRow label="Name"  value={result.attendeeName} />}
-                {result.attendeeId   && <InfoRow label="ID"    value={result.attendeeId} />}
-                {result.event        && <InfoRow label="Event" value={result.event} />}
-                {status === 'used'  && result.scannedAt && (
+                {result.attendeeName && <InfoRow label="Name" value={result.attendeeName} />}
+                {result.attendeeId && <InfoRow label="ID" value={result.attendeeId} />}
+                {result.event && <InfoRow label="Event" value={result.event} />}
+                {status === 'used' && result.scannedAt && (
                   <InfoRow label="⚠️ Previously scanned at" value={new Date(result.scannedAt).toLocaleString()} highlight />
                 )}
                 {status === 'valid' && result.scannedAt && (
