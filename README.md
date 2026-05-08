@@ -1,72 +1,162 @@
-# 🎟️ Event Management Platform
+# 🎟️ EventMaster — MERN Event Management Platform
 
-## 📌 Description
-
-This is a web-based Event Management Platform developed using React. The application allows users to explore various events, view details, and book tickets in a simple and user-friendly way. It aims to replace manual event handling with a digital solution.
+A full-stack event management platform built with the **MERN stack** (MongoDB, Express, React, Node.js). Users can browse events, book tickets with QR codes, and scan them for verification. Admins can create, edit, and delete events.
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-* Browse and explore events
-* View event details (category, seats available)
-* Ticket booking functionality
-* Real-time seat availability display
-* “Sold Out” indication for full events
-* Responsive and user-friendly interface
+### 👤 For Users
+- Browse all upcoming events with category filters
+- Book tickets by entering attendee name & ID
+- View booked tickets with scannable **QR codes** on the Dashboard
+- Real-time seat availability with progress bar
+
+### 👑 For Admins
+- Create new events (title, category, date, location, spots, description)
+- Edit and delete existing events
+- Scan QR codes to verify ticket validity at the venue
 
 ---
 
 ## 🛠️ Tech Stack
 
-* Frontend: React.js (Vite)
-* Styling: CSS
-* Tools: Git, GitHub
+| Layer      | Technology                          |
+|------------|-------------------------------------|
+| Frontend   | React.js (Vite), Vanilla CSS        |
+| Backend    | Node.js, Express.js                 |
+| Database   | MongoDB Atlas (Mongoose ODM)        |
+| Auth       | JWT (JSON Web Tokens) + bcryptjs    |
+| QR Codes   | qrcode.react                        |
 
 ---
 
 ## 📂 Project Structure
 
-src/
-├── components/
-├── pages/
-├── App.jsx
-└── main.jsx
+```
+mern-event-platform/
+├── backend/
+│   ├── config/
+│   │   └── db.js               # MongoDB connection
+│   ├── controllers/
+│   │   ├── authController.js   # Register, Login, Profile
+│   │   └── eventController.js  # CRUD + Book + Verify
+│   ├── middleware/
+│   │   └── authMiddleware.js   # JWT protect & admin check
+│   ├── models/
+│   │   ├── User.js             # User schema (with bookedTickets)
+│   │   └── Event.js            # Event schema (spots, totalSpots)
+│   ├── routes/
+│   │   ├── authRoutes.js       # /api/auth/*
+│   │   └── eventRoutes.js      # /api/events/*
+│   ├── server.js               # Express app entry point
+│   └── .env                    # Environment variables (not in git)
+│
+└── frontend/
+    └── src/
+        ├── components/
+        │   └── Navbar.jsx      # Navigation bar
+        ├── pages/
+        │   ├── Home.jsx        # Event listing + booking modal
+        │   ├── Dashboard.jsx   # User's booked tickets + QR codes
+        │   ├── Login.jsx       # Login form
+        │   ├── Register.jsx    # Registration form
+        │   ├── CreateEvent.jsx # Admin: create event form
+        │   ├── EditEvent.jsx   # Admin: edit event form
+        │   └── VerifyTicket.jsx# QR scan result page
+        ├── index.css           # All global styles & design tokens
+        └── App.jsx             # Routes configuration
+```
 
 ---
 
-## ▶️ How to Run the Project
+## ▶️ How to Run Locally
 
-1. Clone the repository:
-   git clone https://github.com/sakshisk11/mern-event-platform.git
+### Prerequisites
+- Node.js installed
+- A MongoDB Atlas account (free tier works)
 
-2. Navigate to the project folder:
-   cd mern-event-platform
+### 1. Clone the repository
+```bash
+git clone https://github.com/sakshisk11/mern-event-platform.git
+cd mern-event-platform
+```
 
-3. Install dependencies:
-   npm install
+### 2. Set up the Backend
+```bash
+cd backend
+npm install
+```
 
-4. Run the project:
-   npm run dev
+Create a `.env` file inside the `backend/` folder:
+```env
+PORT=5000
+MONGO_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=your_secret_key
+ORGANIZER_EMAIL=admin@eventpro.com
+```
+
+Start the backend server:
+```bash
+node server.js
+```
+
+### 3. Set up the Frontend
+Open a **new terminal**:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 4. Open in browser
+- **PC:** `http://localhost:5173`
+- **Phone (same WiFi):** `http://<your-pc-ip>:5173`
 
 ---
 
-## 🔮 Future Enhancements
+## 🔐 Default Accounts
 
-* Backend integration using Node.js and Express
-* MongoDB database for storing event and user data
-* User authentication system
-* QR code-based ticket validation
-* Payment gateway integration
+| Role  | Email                  | Password   |
+|-------|------------------------|------------|
+| Admin | admin@eventpro.com     | admin123   |
+| User  | Register via /register | your choice |
+
+> The admin account is determined by the `ORGANIZER_EMAIL` in your `.env` file.
+
+---
+
+## 🔗 API Endpoints
+
+### Auth — `/api/auth`
+| Method | Endpoint    | Description        | Auth Required |
+|--------|-------------|--------------------|---------------|
+| POST   | `/register` | Create new account | No            |
+| POST   | `/login`    | Login              | No            |
+| GET    | `/profile`  | Get user + tickets | Yes           |
+
+### Events — `/api/events`
+| Method | Endpoint          | Description           | Auth Required |
+|--------|-------------------|-----------------------|---------------|
+| GET    | `/`               | Get all events        | No            |
+| GET    | `/:id`            | Get single event      | No            |
+| POST   | `/`               | Create event          | Admin only    |
+| PUT    | `/:id`            | Update event          | Admin only    |
+| DELETE | `/:id`            | Delete event          | Admin only    |
+| PUT    | `/:id/book`       | Book a ticket         | Yes           |
+| GET    | `/verify/:ticketId` | Verify QR ticket    | No            |
+
+---
+
+## 📱 QR Code Scanning
+
+1. Book a ticket → visit **Dashboard** to see your QR code
+2. Open the app on your **PC using its IP address** (e.g. `http://192.168.x.x:5173`)
+3. The QR code will encode that IP — scan it from your phone on the same WiFi
+4. The verify page shows ✅ VALID or ❌ INVALID with attendee details
 
 ---
 
 ## 👩‍💻 Author
 
-Sakshi
-
----
-
-## 📎 GitHub Repository
-
-https://github.com/sakshisk11/mern-event-platform
+**Sakshi** — [github.com/sakshisk11](https://github.com/sakshisk11)
