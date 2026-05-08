@@ -102,22 +102,15 @@ function Dashboard() {
                 )}
               </div>
 
-              {/* QR Code — encodes human-readable ticket info.
-                  When scanned, phone shows the text directly.
-                  Admin copies the Ticket Ref (last line) into the Verify page. */}
+              {/* QR Code encodes a URL so phones show "Open link" instead of "Search barcode".
+                  Admin's in-app scanner reads the URL and auto-extracts the ticket ID. */}
               <div className="ticket-qr" style={{ position: 'relative' }}>
                 <QRCodeSVG
-                  value={
-                    `EventMaster Ticket\n` +
-                    `Name: ${ticket.attendeeName}\n` +
-                    `ID: ${ticket.attendeeId || 'N/A'}\n` +
-                    `Event: ${ticket.event?.title || 'Unknown'}\n` +
-                    `Ref: ${ticket._id}`
-                  }
+                  value={`${window.location.protocol}//${window.location.host}/verify-ticket?ref=${ticket._id}`}
                   size={160}
                   bgColor="#ffffff"
                   fgColor="#0f172a"
-                  level="Q"
+                  level="L"
                 />
                 {/* Dark overlay + lock icon on already-used tickets */}
                 {ticket.scanned && (

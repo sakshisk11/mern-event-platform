@@ -26,6 +26,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create-event" element={<CreateEvent />} />
           <Route path="/edit-event/:id" element={<EditEvent />} />
+          {/* /verify-ticket — admin scanner page. Also handles ?ref=ID when opened from QR link */}
           <Route path="/verify-ticket" element={<VerifyTicket />} />
         </Routes>
 
