@@ -37,7 +37,7 @@ function CreateEvent() {
         { ...form, spots: Number(form.spots) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      navigate('/'); // go back to home after creating
+      navigate('/home'); // go back to home after creating
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create event.');
     } finally {
@@ -50,7 +50,7 @@ function CreateEvent() {
       <div style={{ width: '100%', maxWidth: '640px' }}>
 
         {/* Back button */}
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/')} style={{ marginBottom: '1.5rem' }}>
+        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/home')} style={{ marginBottom: '1.5rem' }}>
           ← Back
         </button>
 
@@ -125,7 +125,7 @@ function CreateEvent() {
 
               {/* Submit buttons */}
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={() => navigate('/')}>
+                <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={() => navigate('/home')}>
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 2, justifyContent: 'center' }} disabled={loading}>

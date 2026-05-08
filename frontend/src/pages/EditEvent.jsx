@@ -26,7 +26,7 @@ function EditEvent() {
         setLoading(false);
       } catch {
         alert('Error fetching event');
-        navigate('/');
+        navigate('/home');
       }
     };
     fetchEvent();
@@ -68,7 +68,7 @@ function EditEvent() {
       <div style={{ width: '100%', maxWidth: '580px' }}>
 
         {/* Back button */}
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/')} style={{ marginBottom: '1.5rem' }}>
+        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/home')} style={{ marginBottom: '1.5rem' }}>
           ← Back
         </button>
 
@@ -108,7 +108,7 @@ function EditEvent() {
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={() => navigate('/')}>
+                <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={() => navigate('/home')}>
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 2, justifyContent: 'center' }}>
