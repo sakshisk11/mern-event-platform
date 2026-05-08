@@ -36,6 +36,7 @@ function Navbar() {
           <>
             <Link to="/create-event" className={`nav-link ${active('/create-event')}`}>+ Create Event</Link>
             <Link to="/verify-ticket" className={`nav-link ${active('/verify-ticket')}`}>🔍 Verify</Link>
+            <Link to="/admin/dashboard" className={`nav-link ${active('/admin/dashboard')}`}>📊 Stats</Link>
           </>
         )}
 

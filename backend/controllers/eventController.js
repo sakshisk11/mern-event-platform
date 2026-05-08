@@ -203,6 +203,50 @@ const verifyByCode = async (req, res) => {
     }
 };
 
+// @desc    Get detailed stats for all events (admin only)
+// @route   GET /api/events/admin/stats
+const getAdminStats = async (req, res) => {
+    try {
+        const events = await Event.find().sort({ date: 1 });
+        
+        // Find all users who have booked tickets
+        const users = await User.find({ 'bookedTickets.0': { $exists: true } });
+
+        const stats = events.map(event => {
+            const attendees = [];
+            
+            users.forEach(user => {
+                user.bookedTickets.forEach(ticket => {
+                    if (ticket.event.toString() === event._id.toString()) {
+                        attendees.push({
+                            name: ticket.attendeeName || user.name,
+                            id: ticket.attendeeId || 'N/A',
+                            scanned: ticket.scanned,
+                            scannedAt: ticket.scannedAt
+                        });
+                    }
+                });
+            });
+
+            return {
+                _id: event._id,
+                title: event.title,
+                category: event.category,
+                totalSpots: event.totalSpots || (event.spots + attendees.length),
+                remainingSpots: event.spots,
+                bookedCount: attendees.length,
+                attendees: attendees,
+                date: event.date,
+                location: event.location
+            };
+        });
+
+        res.status(200).json(stats);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getEvents,
     getEventById,
@@ -211,4 +255,5 @@ module.exports = {
     deleteEvent,
     bookEvent,
     verifyByCode,
+    getAdminStats
 };

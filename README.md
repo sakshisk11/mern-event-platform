@@ -18,6 +18,7 @@ A full-stack event management platform built with the **MERN stack** (MongoDB, E
   - ✅ **VALID** — first scan, allow entry (ticket marked as used in database).
   - ⚠️ **ALREADY USED** — previously validated, deny entry.
   - ❌ **INVALID** — code not found.
+- **Admin Stats Dashboard:** A dedicated page (`/admin/dashboard`) to view booked/remaining spots and full attendee lists for every event.
 
 ---
 
@@ -63,7 +64,8 @@ mern-event-platform/
         │   ├── Register.jsx    # Registration form
         │   ├── CreateEvent.jsx # Admin: create event form
         │   ├── EditEvent.jsx   # Admin: edit event form
-        │   └── VerifyTicket.jsx# Manual code verification page
+        │   ├── VerifyTicket.jsx# Manual code verification page
+        │   └── AdminDashboard.jsx # Admin: event stats & attendee lists
         ├── index.css           # All global styles & design tokens
         └── App.jsx             # Routes configuration
 ```
@@ -144,6 +146,7 @@ npm run dev
 | DELETE | `/:id`            | Delete event          | Admin only    |
 | PUT    | `/:id/book`       | Book a ticket         | Yes           |
 | POST   | `/verify-code/:c` | Verify ticket by code | No            |
+| GET    | `/admin/stats`    | Get detailed stats    | Admin only    |
 
 ---
 

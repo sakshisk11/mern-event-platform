@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import CreateEvent from './pages/CreateEvent';
 import EditEvent from './pages/EditEvent';
 import VerifyTicket from './pages/VerifyTicket';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/edit-event/:id" element={<EditEvent />} />
           {/* /verify-ticket — admin page for manual ticket verification */}
           <Route path="/verify-ticket" element={<VerifyTicket />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
 
       </div>
