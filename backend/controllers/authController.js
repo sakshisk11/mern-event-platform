@@ -82,13 +82,7 @@ const loginUser = async (req, res) => {
     }
 };
 
-// Helper: generate a 6-char alphanumeric ticket code
-const makeCode = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code = '';
-    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-    return code;
-};
+
 
 const getUserProfile = async (req, res) => {
     try {
