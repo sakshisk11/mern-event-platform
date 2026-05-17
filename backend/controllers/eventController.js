@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Event = require('../models/Event');
+const { sendBookingConfirmation } = require('../utils/emailService');
 
 // Generate a unique 6-char alphanumeric ticket code (no 0,O,1,I to avoid confusion)
 const generateTicketCode = () => {
@@ -131,6 +132,10 @@ const bookEvent = async (req, res) => {
             attendeeId:   attendeeId   || 'N/A',
         });
         await user.save();
+
+        // Send booking confirmation email (non-blocking)
+        const newTicket = user.bookedTickets[user.bookedTickets.length - 1];
+        sendBookingConfirmation(user, event, newTicket);
 
         res.status(200).json({
             message: 'Ticket booked successfully!',
